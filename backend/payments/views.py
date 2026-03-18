@@ -1,212 +1,178 @@
 import csv
-from decimal import Decimal
+import logging
 
 import stripe
-from django.conf import settings
 from django.http import HttpResponse
-from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
-from twilio.rest import Client as TwilioClient
+from rest_framework.views import APIView
+from twilio.base.exceptions import TwilioRestException
 
 from .models import Transaction, JobTemplate
-from .serializers import TransactionSerializer, JobTemplateSerializer
+from .serializers import (
+    TransactionReadSerializer,
+    PaymentIntentCreateSerializer,
+    CompleteTransactionSerializer,
+    SendReceiptSerializer,
+    OfflineSyncSerializer,
+    JobTemplateSerializer,
+)
+from . import services
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
+logger = logging.getLogger('payments')
 
 
-@api_view(['POST'])
-def connection_token(request):
+class ConnectionTokenView(APIView):
     """Create a Stripe Terminal connection token."""
-    try:
-        token = stripe.terminal.ConnectionToken.create()
-        return Response({'secret': token.secret})
-    except stripe.StripeError as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        try:
+            secret = services.create_connection_token()
+            return Response({'secret': secret})
+        except stripe.StripeError as e:
+            logger.error('Stripe connection token error: %s', e)
+            return Response({'error': str(e)}, status=status.HTTP_502_BAD_GATEWAY)
 
 
-@api_view(['POST'])
-def create_payment_intent(request):
+class PaymentIntentCreateView(APIView):
     """Create a PaymentIntent + pending Transaction."""
-    amount = request.data.get('amount')  # in cents
-    currency = request.data.get('currency', 'usd')
-    description = request.data.get('description', '')
-    category = request.data.get('category', 'labor')
 
-    if not amount or int(amount) <= 0:
-        return Response({'error': 'Amount must be positive'}, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        serializer = PaymentIntentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-    try:
-        intent = stripe.PaymentIntent.create(
-            amount=int(amount),
-            currency=currency,
-            payment_method_types=['card_present'],
-            capture_method='automatic',
-            metadata={'description': description, 'category': category},
-        )
-
-        Transaction.objects.create(
-            amount=Decimal(int(amount)) / 100,
-            description=description,
-            category=category,
-            status='pending',
-            stripe_payment_intent_id=intent.id,
-        )
-
-        return Response({
-            'client_secret': intent.client_secret,
-            'id': intent.id,
-        })
-    except stripe.StripeError as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        data = serializer.validated_data
+        try:
+            intent, _ = services.create_payment(
+                amount_cents=data['amount'],
+                currency=data['currency'],
+                description=data.get('description', ''),
+                category=data.get('category', 'labor'),
+            )
+            return Response({
+                'client_secret': intent.client_secret,
+                'id': intent.id,
+            })
+        except stripe.StripeError as e:
+            logger.error('Stripe PaymentIntent error: %s', e)
+            return Response({'error': str(e)}, status=status.HTTP_502_BAD_GATEWAY)
 
 
-@api_view(['PATCH'])
-def complete_transaction(request, payment_intent_id):
+class TransactionCompleteView(APIView):
     """Mark a transaction as completed with card details."""
-    try:
-        txn = Transaction.objects.get(stripe_payment_intent_id=payment_intent_id)
-    except Transaction.DoesNotExist:
-        return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    txn.card_last4 = request.data.get('card_last4', '')
-    txn.card_brand = request.data.get('card_brand', '')
-    txn.status = 'completed'
-    txn.save()
+    def patch(self, request, payment_intent_id):
+        serializer = CompleteTransactionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-    return Response(TransactionSerializer(txn).data)
-
-
-@api_view(['GET'])
-def list_transactions(request):
-    """List transactions with optional filters."""
-    qs = Transaction.objects.filter(status='completed')
-
-    if request.query_params.get('today') == 'true':
-        today = timezone.now().date()
-        qs = qs.filter(created_at__date=today)
-
-    category = request.query_params.get('category')
-    if category:
-        qs = qs.filter(category=category)
-
-    return Response(TransactionSerializer(qs, many=True).data)
+        try:
+            txn = services.complete_transaction(
+                payment_intent_id=payment_intent_id,
+                card_last4=serializer.validated_data.get('card_last4', ''),
+                card_brand=serializer.validated_data.get('card_brand', ''),
+            )
+            return Response(TransactionReadSerializer(txn).data)
+        except Transaction.DoesNotExist:
+            return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
-def export_transactions(request):
+class TransactionListView(ListAPIView):
+    """List completed transactions with optional filters."""
+    serializer_class = TransactionReadSerializer
+
+    def get_queryset(self):
+        return services.get_filtered_transactions(
+            today=self.request.query_params.get('today') == 'true',
+            category=self.request.query_params.get('category'),
+        )
+
+
+class TransactionExportView(APIView):
     """Export transactions as QuickBooks-compatible CSV."""
-    qs = Transaction.objects.filter(status='completed')
 
-    if request.query_params.get('today') == 'true':
-        today = timezone.now().date()
-        qs = qs.filter(created_at__date=today)
+    def get(self, request):
+        qs = services.get_filtered_transactions(
+            today=request.query_params.get('today') == 'true',
+            category=request.query_params.get('category'),
+        )
 
-    category = request.query_params.get('category')
-    if category:
-        qs = qs.filter(category=category)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="nailit_transactions.csv"'
 
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="nailit_transactions.csv"'
-
-    # QuickBooks-compatible columns: Date, Description, Amount, Category map to
-    # Date, Memo, Amount, Class in QuickBooks import
-    writer = csv.writer(response)
-    writer.writerow(['Date', 'Amount', 'Description', 'Category', 'Card Brand', 'Card Last4', 'Status', 'Stripe Payment Intent ID'])
-    for txn in qs:
+        writer = csv.writer(response)
         writer.writerow([
-            txn.created_at.strftime('%Y-%m-%d %H:%M'),
-            f'{txn.amount:.2f}',
-            txn.description,
-            txn.category,
-            txn.card_brand,
-            txn.card_last4,
-            txn.status,
-            txn.stripe_payment_intent_id,
+            'Date', 'Amount', 'Description', 'Category',
+            'Card Brand', 'Card Last4', 'Status', 'Stripe Payment Intent ID',
         ])
+        for txn in qs:
+            writer.writerow([
+                txn.created_at.strftime('%Y-%m-%d %H:%M'),
+                f'{txn.amount:.2f}',
+                txn.description,
+                txn.category,
+                txn.card_brand,
+                txn.card_last4,
+                txn.status,
+                txn.stripe_payment_intent_id,
+            ])
 
-    return response
+        return response
 
 
-@api_view(['POST'])
-def send_receipt(request):
+class SendReceiptView(APIView):
     """Send SMS receipt via Twilio."""
-    transaction_id = request.data.get('transaction_id')
-    phone = request.data.get('phone')
 
-    if not transaction_id or not phone:
-        return Response({'error': 'transaction_id and phone are required'}, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        serializer = SendReceiptSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-    try:
-        txn = Transaction.objects.get(stripe_payment_intent_id=transaction_id)
-    except Transaction.DoesNotExist:
-        return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+        data = serializer.validated_data
+        try:
+            txn = Transaction.objects.get(stripe_payment_intent_id=data['transaction_id'])
+        except Transaction.DoesNotExist:
+            return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    card_info = f"{txn.card_brand.title()} ****{txn.card_last4}" if txn.card_last4 else "Card"
-    body = f"NailIt Receipt: ${txn.amount:.2f} — {txn.description or 'Payment'}. {card_info}. Thank you!"
-
-    try:
-        client = TwilioClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-        message = client.messages.create(
-            body=body,
-            from_=settings.TWILIO_FROM_NUMBER,
-            to=phone,
-        )
-        txn.customer_phone = phone
-        txn.receipt_sent = True
-        txn.save()
-        return Response({'success': True, 'message_sid': message.sid})
-    except Exception as e:
-        return Response({'error': f'SMS failed: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            message_sid = services.send_sms_receipt(txn, data['phone'])
+            return Response({'success': True, 'message_sid': message_sid})
+        except TwilioRestException as e:
+            logger.error('Twilio SMS error: %s', e)
+            return Response(
+                {'error': f'SMS failed: {str(e)}'},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
 
 
-@api_view(['GET'])
-def job_templates(request):
+class JobTemplateListView(ListAPIView):
     """Return job templates ordered by usage count."""
-    templates = JobTemplate.objects.all()
-    return Response(JobTemplateSerializer(templates, many=True).data)
+    queryset = JobTemplate.objects.all()
+    serializer_class = JobTemplateSerializer
+    pagination_class = None
 
 
-@api_view(['GET'])
-def recent_descriptions(request):
+class RecentDescriptionsView(APIView):
     """Return last 5 unique descriptions from completed transactions."""
-    descriptions = (
-        Transaction.objects
-        .filter(status='completed')
-        .exclude(description='')
-        .values_list('description', flat=True)
-        .distinct()[:5]
-    )
-    return Response(list(descriptions))
 
-
-@api_view(['POST'])
-def offline_sync(request):
-    """Bulk-create/update transactions from offline queue. Idempotent."""
-    transactions = request.data.get('transactions', [])
-    synced = 0
-    skipped = 0
-
-    for txn_data in transactions:
-        pi_id = txn_data.get('stripe_payment_intent_id')
-        if not pi_id:
-            continue
-
-        _, created = Transaction.objects.update_or_create(
-            stripe_payment_intent_id=pi_id,
-            defaults={
-                'amount': Decimal(str(txn_data.get('amount', 0))) / 100,
-                'description': txn_data.get('description', ''),
-                'category': txn_data.get('category', 'labor'),
-                'card_last4': txn_data.get('card_last4', ''),
-                'card_brand': txn_data.get('card_brand', ''),
-                'status': 'completed',
-            },
+    def get(self, request):
+        descriptions = (
+            Transaction.objects
+            .filter(status='completed')
+            .exclude(description='')
+            .values_list('description', flat=True)
+            .distinct()[:5]
         )
-        if created:
-            synced += 1
-        else:
-            skipped += 1
+        return Response(list(descriptions))
 
-    return Response({'synced': synced, 'skipped': skipped})
+
+class OfflineSyncView(APIView):
+    """Bulk-create/update transactions from offline queue. Idempotent."""
+
+    def post(self, request):
+        serializer = OfflineSyncSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        synced, skipped = services.sync_offline_batch(
+            serializer.validated_data['transactions']
+        )
+        return Response({'synced': synced, 'skipped': skipped})

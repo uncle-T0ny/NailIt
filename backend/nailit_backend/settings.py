@@ -5,9 +5,16 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-dev-key-change-in-production')
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+# Security — fail loudly if secret key is missing in production
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if os.getenv('ENVIRONMENT') == 'production':
+        raise ValueError('DJANGO_SECRET_KEY must be set in production')
+    SECRET_KEY = 'django-insecure-dev-key-DO-NOT-USE-IN-PRODUCTION'
+
+DEBUG = os.getenv('DEBUG', 'true').lower() == 'true'
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -73,13 +80,20 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS — allow all for demo. In production, restrict to specific origins.
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS
+_cors_origins = os.getenv('CORS_ALLOWED_ORIGINS')
+if _cors_origins:
+    CORS_ALLOWED_ORIGINS = _cors_origins.split(',')
+else:
+    # Allow all for demo — in production, set CORS_ALLOWED_ORIGINS env var
+    CORS_ALLOW_ALL_ORIGINS = True
 
 # No auth for demo — in production, add JWT/token authentication
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50,
 }
 
 # Stripe
@@ -90,3 +104,28 @@ STRIPE_LOCATION_ID = os.getenv('STRIPE_LOCATION_ID', '')
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '')
 TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER', '')
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname} {name} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'payments': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
