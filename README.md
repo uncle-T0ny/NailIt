@@ -37,3 +37,7 @@ eas build --profile development --platform ios
 - **Backend:** Django + DRF, SQLite, Stripe Python SDK, Twilio
 - **Mobile:** React Native (Expo), TypeScript, Stripe Terminal, React Navigation
 - **Features:** Tap to Pay, SMS receipts, offline queue, CSV export, job templates
+
+## Credits
+
+Logo generated using [Quiver](https://app.quiver.ai/)

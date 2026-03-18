@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "NailIt",
+    "slug": "nailit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1B2A4A"
+    },
+    "ios": {
+      "bundleIdentifier": "com.nailit.demo",
+      "supportsTablet": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1B2A4A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "plugins": [
+      [
+        "@stripe/stripe-terminal-react-native",
+        {
+          "bluetoothBackgroundMode": true,
+          "locationWhenInUsePermission": "Location access is required to accept payments.",
+          "bluetoothPeripheralPermission": "Bluetooth access is required to connect to card readers.",
+          "bluetoothAlwaysUsagePermission": "Bluetooth is used to connect to card readers.",
+          "localNetworkUsagePermission": "Local network access is required for card readers.",
+          "appDelegate": true,
+          "tapToPayCheck": true
+        }
+      ],
+      "expo-sharing"
+    ]
+  }
+}
