@@ -2,6 +2,10 @@
 // e.g., http://192.168.x.x:8000 or https://abc123.ngrok.io
 export const API_URL = 'http://192.168.1.148:8000';
 
+// Demo mode — bypasses Stripe Terminal SDK for iOS Simulator demos
+// Set to false for real device with Tap to Pay hardware
+export const DEMO_MODE = true;
+
 // Stripe Terminal location ID
 export const STRIPE_LOCATION_ID = 'tml_GbemGgskI4LbKf';
 

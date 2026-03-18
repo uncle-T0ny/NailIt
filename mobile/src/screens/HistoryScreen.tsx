@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   SafeAreaView,
   FlatList,
   RefreshControl,
@@ -16,6 +15,15 @@ import { NailyClipboard, NailyShrug, NailyOffline, NailySyncing } from '../masco
 import { fetchTransactions, exportTransactionsCSV } from '../utils/api';
 import { getQueue, flushQueue } from '../utils/offlineQueue';
 import { COLORS, CATEGORIES, Category } from '../utils/config';
+import { Button, Card, Chip, Badge, ScreenHeader, Banner } from '../components';
+
+const CATEGORY_COLORS: Record<string, string> = {
+  labor: '#3B82F6',
+  materials: '#F59E0B',
+  subcontractor: '#8B5CF6',
+  equipment: '#10B981',
+  other: '#6B7280',
+};
 
 export default function HistoryScreen() {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -71,25 +79,20 @@ export default function HistoryScreen() {
     }
   };
 
-  const getCategoryColor = (cat: string) => {
-    const colors: Record<string, string> = {
-      labor: '#3B82F6',
-      materials: '#F59E0B',
-      subcontractor: '#8B5CF6',
-      equipment: '#10B981',
-      other: '#6B7280',
-    };
-    return colors[cat] || COLORS.gray;
-  };
-
   const renderTransaction = ({ item }: { item: any }) => (
-    <View style={styles.txnCard}>
+    <Card variant="transaction">
       <View style={styles.txnTop}>
         <Text style={styles.txnAmount}>${parseFloat(item.amount).toFixed(2)}</Text>
-        <View style={[styles.categoryPill, { backgroundColor: getCategoryColor(item.category) }]}>
-          <Text style={styles.categoryPillText}>
-            {CATEGORIES.find((c) => c.key === item.category)?.label || item.category}
-          </Text>
+        <View style={styles.badges}>
+          <Badge
+            variant="status"
+            label={item.status === 'completed' ? 'Completed' : 'Pending'}
+          />
+          <Badge
+            variant="category"
+            label={CATEGORIES.find((c) => c.key === item.category)?.label || item.category}
+            color={CATEGORY_COLORS[item.category] || COLORS.gray}
+          />
         </View>
       </View>
       {item.description ? <Text style={styles.txnDesc}>{item.description}</Text> : null}
@@ -101,12 +104,7 @@ export default function HistoryScreen() {
           {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </Text>
       </View>
-      <View style={[styles.statusBadge, { backgroundColor: item.status === 'completed' ? COLORS.green : COLORS.orange }]}>
-        <Text style={styles.statusText}>
-          {item.status === 'completed' ? 'Completed' : 'Pending'}
-        </Text>
-      </View>
-    </View>
+    </Card>
   );
 
   const allFilters: Array<{ key: Category | 'all'; label: string }> = [
@@ -116,29 +114,26 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <NailyClipboard size={60} />
-        <Text style={styles.title}>History</Text>
-        <TouchableOpacity style={styles.exportBtn} onPress={handleExport}>
-          <Text style={styles.exportBtnText}>CSV</Text>
-        </TouchableOpacity>
-      </View>
+      <ScreenHeader
+        title="History"
+        mascot={<NailyClipboard size={60} />}
+        rightAction={
+          <Button variant="small" onPress={handleExport}>CSV</Button>
+        }
+      />
 
       {/* Offline Queue Banner */}
       {queueCount > 0 && (
-        <View style={styles.offlineBanner}>
-          {syncing ? <NailySyncing size={40} /> : <NailyOffline size={40} />}
-          <Text style={styles.offlineText}>
-            {syncing
-              ? 'Syncing...'
-              : `${queueCount} payment${queueCount > 1 ? 's' : ''} pending sync`}
-          </Text>
-          {!syncing && (
-            <TouchableOpacity style={styles.syncBtn} onPress={handleSync}>
-              <Text style={styles.syncBtnText}>Sync Now</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+        <Banner
+          variant="warning"
+          icon={syncing ? <NailySyncing size={40} /> : <NailyOffline size={40} />}
+          action={!syncing ? { label: 'Sync Now', onPress: handleSync } : undefined}
+          style={styles.bannerSpacing}
+        >
+          {syncing
+            ? 'Syncing...'
+            : `${queueCount} payment${queueCount > 1 ? 's' : ''} pending sync`}
+        </Banner>
       )}
 
       {/* Filter Bar */}
@@ -149,14 +144,12 @@ export default function HistoryScreen() {
         showsHorizontalScrollIndicator={false}
         style={styles.filterBar}
         renderItem={({ item: f }) => (
-          <TouchableOpacity
-            style={[styles.filterPill, filter === f.key && styles.filterPillActive]}
+          <Chip
+            label={f.label}
+            active={filter === f.key}
             onPress={() => setFilter(f.key)}
-          >
-            <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
-              {f.label}
-            </Text>
-          </TouchableOpacity>
+            activeColor="navy"
+          />
         )}
       />
 
@@ -180,68 +173,19 @@ export default function HistoryScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.lightGray },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    gap: 12,
-  },
-  title: { fontSize: 24, fontWeight: '700', color: COLORS.navy, flex: 1 },
-  exportBtn: {
-    backgroundColor: COLORS.navy,
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  exportBtnText: { color: COLORS.white, fontSize: 14, fontWeight: '600' },
-  offlineBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FEF3C7',
+  bannerSpacing: {
     marginHorizontal: 20,
     marginTop: 8,
-    borderRadius: 12,
-    padding: 12,
-    gap: 8,
   },
-  offlineText: { flex: 1, fontSize: 13, fontWeight: '600', color: COLORS.darkGray },
-  syncBtn: { backgroundColor: COLORS.orange, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
-  syncBtnText: { color: COLORS.white, fontSize: 13, fontWeight: '600' },
   filterBar: { maxHeight: 44, marginTop: 12, paddingHorizontal: 20 },
-  filterPill: {
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 8,
-    backgroundColor: COLORS.white,
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-  },
-  filterPillActive: { backgroundColor: COLORS.navy, borderColor: COLORS.navy },
-  filterText: { fontSize: 14, fontWeight: '600', color: COLORS.darkGray },
-  filterTextActive: { color: COLORS.white },
   listContent: { padding: 20, paddingTop: 12 },
-  txnCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
   txnTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   txnAmount: { fontSize: 22, fontWeight: '700', color: COLORS.navy },
-  categoryPill: { borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4 },
-  categoryPillText: { color: COLORS.white, fontSize: 12, fontWeight: '600' },
+  badges: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   txnDesc: { fontSize: 14, color: COLORS.darkGray, marginTop: 6 },
   txnBottom: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
   txnCardInfo: { fontSize: 13, color: COLORS.gray },
   txnTime: { fontSize: 13, color: COLORS.gray },
-  statusBadge: { position: 'absolute', top: 12, right: 12, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 },
-  statusText: { color: COLORS.white, fontSize: 10, fontWeight: '700' },
   empty: { alignItems: 'center', paddingTop: 60 },
   emptyText: { fontSize: 18, color: COLORS.gray, marginTop: 16, fontWeight: '600' },
 });

@@ -1,5 +1,6 @@
 export type RootStackParamList = {
   Main: undefined;
+  UIKit: undefined;
   CollectPayment: undefined;
   TapToPay: {
     amount: number;

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
-import Svg, { Circle, Ellipse, Line, Path, Rect } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,6 +8,7 @@ import Animated, {
   withDelay,
   withRepeat,
 } from 'react-native-reanimated';
+import CelebrateSvg from '../../assets/mascot/naily-celebrate.svg';
 
 interface Props { size?: number; }
 
@@ -72,29 +72,7 @@ export default function NailyCelebrate({ size = 120 }: Props) {
         <Confetti key={i} delay={i * 200} x={10 + i * (size / 6)} color={color} />
       ))}
       <Animated.View style={animStyle}>
-        <Svg width={size} height={size} viewBox="0 0 120 120">
-          <Rect x="42" y="35" width="36" height="55" rx="8" fill="#B0B8C4" />
-          <Rect x="32" y="28" width="56" height="12" rx="4" fill="#9AA3B0" />
-          <Path d="M48 90 L60 108 L72 90 Z" fill="#9AA3B0" />
-          <Ellipse cx="60" cy="22" rx="28" ry="12" fill="#FF6B35" />
-          <Rect x="36" y="16" width="48" height="10" rx="3" fill="#FF6B35" />
-          <Rect x="44" y="12" width="32" height="8" rx="4" fill="#FF8C5A" />
-          <Rect x="30" y="24" width="60" height="4" rx="2" fill="#E55A2B" />
-          {/* Happy eyes */}
-          <Path d="M46 46 Q50 42 54 46" stroke="#1B2A4A" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          <Path d="M66 46 Q70 42 74 46" stroke="#1B2A4A" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          {/* Big smile */}
-          <Path d="M46 56 Q60 70 74 56" stroke="#1B2A4A" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          {/* Both arms up */}
-          <Line x1="42" y1="45" x2="18" y2="22" stroke="#9AA3B0" strokeWidth="4" strokeLinecap="round" />
-          <Line x1="78" y1="45" x2="102" y2="22" stroke="#9AA3B0" strokeWidth="4" strokeLinecap="round" />
-          {/* Hands */}
-          <Circle cx="16" cy="20" r="4" fill="#9AA3B0" />
-          <Circle cx="104" cy="20" r="4" fill="#9AA3B0" />
-          {/* Stars */}
-          <Path d="M15 10 L17 6 L19 10 L15 8 L19 8 Z" fill="#EAB308" />
-          <Path d="M101 10 L103 6 L105 10 L101 8 L105 8 Z" fill="#EAB308" />
-        </Svg>
+        <CelebrateSvg width={size} height={size} />
       </Animated.View>
     </View>
   );

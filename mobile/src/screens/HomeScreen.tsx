@@ -3,15 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
+  Pressable,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NailyWave } from '../mascot';
 import { fetchTransactions } from '../utils/api';
 import { COLORS } from '../utils/config';
+import { Button, Card } from '../components';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -44,17 +45,21 @@ export default function HomeScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.logo}>NailIt</Text>
-        <NailyWave size={80} />
-      </View>
+      <Pressable
+        style={styles.header}
+        onLongPress={() => __DEV__ && navigation.navigate('UIKit' as any)}
+        delayLongPress={800}
+      >
+        <NailyWave size={56} />
+        <Text style={styles.logo}>Nail<Text style={styles.logoAccent}>IT</Text></Text>
+      </Pressable>
 
-      <View style={styles.card}>
+      <Card centered style={styles.cardSpacing}>
         <Text style={styles.cardLabel}>Demo Construction Co.</Text>
         <Text style={styles.cardSubtext}>Tap to Pay Terminal</Text>
-      </View>
+      </Card>
 
-      <View style={styles.card}>
+      <Card centered style={styles.cardSpacing}>
         <Text style={styles.cardLabel}>Today's Total</Text>
         {loading ? (
           <ActivityIndicator color={COLORS.orange} size="small" />
@@ -68,15 +73,15 @@ export default function HomeScreen({ navigation }: Props) {
             </Text>
           </>
         )}
-      </View>
+      </Card>
 
-      <TouchableOpacity
-        style={styles.collectButton}
+      <Button
+        variant="primary"
         onPress={() => navigation.navigate('CollectPayment')}
-        activeOpacity={0.8}
+        style={styles.collectButton}
       >
-        <Text style={styles.collectButtonText}>Collect Payment</Text>
-      </TouchableOpacity>
+        Collect Payment
+      </Button>
     </SafeAreaView>
   );
 }
@@ -85,30 +90,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.lightGray,
-    paddingHorizontal: 20,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 8,
+    paddingHorizontal: 20,
+    gap: 12,
   },
   logo: {
     fontSize: 36,
     fontWeight: '800',
     color: COLORS.navy,
   },
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    padding: 20,
+  logoAccent: {
+    fontSize: 42,
+    fontWeight: '900',
+    color: COLORS.orange,
+  },
+  cardSpacing: {
     marginTop: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    marginHorizontal: 20,
   },
   cardLabel: {
     fontSize: 16,
@@ -132,20 +136,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   collectButton: {
-    backgroundColor: COLORS.orange,
-    borderRadius: 16,
-    paddingVertical: 20,
-    alignItems: 'center',
     marginTop: 32,
-    shadowColor: COLORS.orange,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  collectButtonText: {
-    color: COLORS.white,
-    fontSize: 20,
-    fontWeight: '700',
+    marginHorizontal: 20,
   },
 });

@@ -3,8 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  TextInput,
   ScrollView,
   SafeAreaView,
   FlatList,
@@ -13,12 +11,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NailyReady } from '../mascot';
 import { fetchJobTemplates, fetchRecentDescriptions } from '../utils/api';
 import { COLORS, CATEGORIES, Category } from '../utils/config';
+import { Button, Chip, NailItTextInput, ScreenHeader, NumericKeypad } from '../components';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
 };
-
-const KEYPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'];
 
 export default function CollectPaymentScreen({ navigation }: Props) {
   const [amountStr, setAmountStr] = useState('0');
@@ -66,10 +63,7 @@ export default function CollectPaymentScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <NailyReady size={60} />
-          <Text style={styles.title}>New Payment</Text>
-        </View>
+        <ScreenHeader title="New Payment" mascot={<NailyReady size={60} />} />
 
         {/* Job Template Chips */}
         {templates.length > 0 && (
@@ -80,22 +74,12 @@ export default function CollectPaymentScreen({ navigation }: Props) {
             showsHorizontalScrollIndicator={false}
             style={styles.chipRow}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  styles.chip,
-                  description === item.name && styles.chipActive,
-                ]}
+              <Chip
+                label={item.name}
+                active={description === item.name}
                 onPress={() => handleTemplatePress(item)}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    description === item.name && styles.chipTextActive,
-                  ]}
-                >
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
+                activeColor="orange"
+              />
             )}
           />
         )}
@@ -105,13 +89,13 @@ export default function CollectPaymentScreen({ navigation }: Props) {
           <View style={styles.recentRow}>
             <Text style={styles.recentLabel}>Recent:</Text>
             {recentDescs.map((desc, i) => (
-              <TouchableOpacity
+              <Chip
                 key={i}
-                style={styles.recentPill}
+                label={desc}
+                active={false}
                 onPress={() => setDescription(desc)}
-              >
-                <Text style={styles.recentText}>{desc}</Text>
-              </TouchableOpacity>
+                style={styles.recentChip}
+              />
             ))}
           </View>
         )}
@@ -120,26 +104,14 @@ export default function CollectPaymentScreen({ navigation }: Props) {
         <Text style={styles.amountDisplay}>{amountDisplay}</Text>
 
         {/* Numeric Keypad */}
-        <View style={styles.keypad}>
-          {KEYPAD.map((key) => (
-            <TouchableOpacity
-              key={key}
-              style={styles.keypadKey}
-              onPress={() => handleKeyPress(key)}
-              activeOpacity={0.6}
-            >
-              <Text style={styles.keypadText}>{key}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <NumericKeypad onKeyPress={handleKeyPress} />
 
         {/* Description */}
-        <TextInput
-          style={styles.input}
+        <NailItTextInput
           placeholder="e.g., Framing - 45 Elm St"
-          placeholderTextColor={COLORS.gray}
           value={description}
           onChangeText={setDescription}
+          style={styles.inputSpacing}
         />
 
         {/* Category Picker */}
@@ -149,48 +121,35 @@ export default function CollectPaymentScreen({ navigation }: Props) {
           style={styles.categoryRow}
         >
           {CATEGORIES.map((cat) => (
-            <TouchableOpacity
+            <Chip
               key={cat.key}
-              style={[
-                styles.categoryPill,
-                category === cat.key && styles.categoryPillActive,
-              ]}
+              label={cat.label}
+              active={category === cat.key}
               onPress={() => setCategory(cat.key as Category)}
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  category === cat.key && styles.categoryTextActive,
-                ]}
-              >
-                {cat.label}
-              </Text>
-            </TouchableOpacity>
+              activeColor="navy"
+            />
           ))}
         </ScrollView>
 
         {/* Phone */}
-        <TextInput
-          style={styles.input}
+        <NailItTextInput
           placeholder="Customer phone for receipt (optional)"
-          placeholderTextColor={COLORS.gray}
           value={phone}
           onChangeText={setPhone}
           keyboardType="phone-pad"
+          style={styles.inputSpacing}
         />
       </ScrollView>
 
       {/* Charge Button */}
-      <TouchableOpacity
-        style={[styles.chargeButton, amountCents <= 0 && styles.chargeButtonDisabled]}
+      <Button
+        variant="primary"
         onPress={handleCharge}
         disabled={amountCents <= 0}
-        activeOpacity={0.8}
+        style={styles.chargeButton}
       >
-        <Text style={styles.chargeButtonText}>
-          Charge {amountDisplay}
-        </Text>
-      </TouchableOpacity>
+        Charge {amountDisplay}
+      </Button>
     </SafeAreaView>
   );
 }
@@ -198,30 +157,7 @@ export default function CollectPaymentScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.lightGray },
   scroll: { flex: 1, paddingHorizontal: 20 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingTop: 8,
-    paddingBottom: 4,
-  },
-  title: { fontSize: 24, fontWeight: '700', color: COLORS.navy },
   chipRow: { marginTop: 12, maxHeight: 44 },
-  chip: {
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 8,
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-  },
-  chipActive: {
-    backgroundColor: COLORS.orange,
-    borderColor: COLORS.orange,
-  },
-  chipText: { fontSize: 14, fontWeight: '600', color: COLORS.darkGray },
-  chipTextActive: { color: COLORS.white },
   recentRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -230,13 +166,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   recentLabel: { fontSize: 12, color: COLORS.gray, marginRight: 4 },
-  recentPill: {
-    backgroundColor: '#E5E7EB',
-    borderRadius: 12,
+  recentChip: {
     paddingHorizontal: 10,
     paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: '#E5E7EB',
+    borderWidth: 0,
   },
-  recentText: { fontSize: 12, color: COLORS.darkGray },
   amountDisplay: {
     fontSize: 52,
     fontWeight: '800',
@@ -245,58 +181,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 12,
   },
-  keypad: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 8,
-    marginBottom: 16,
-  },
-  keypadKey: {
-    width: '30%',
-    aspectRatio: 2.2,
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  keypadText: { fontSize: 24, fontWeight: '600', color: COLORS.navy },
-  input: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    color: COLORS.navy,
+  inputSpacing: {
     marginBottom: 12,
   },
   categoryRow: { marginBottom: 12, maxHeight: 44 },
-  categoryPill: {
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 8,
-    backgroundColor: COLORS.white,
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-  },
-  categoryPillActive: {
-    backgroundColor: COLORS.navy,
-    borderColor: COLORS.navy,
-  },
-  categoryText: { fontSize: 14, fontWeight: '600', color: COLORS.darkGray },
-  categoryTextActive: { color: COLORS.white },
   chargeButton: {
-    backgroundColor: COLORS.orange,
-    borderRadius: 16,
-    paddingVertical: 20,
     marginHorizontal: 20,
     marginBottom: 20,
-    alignItems: 'center',
-    shadowColor: COLORS.orange,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
   },
-  chargeButtonDisabled: { opacity: 0.4 },
-  chargeButtonText: { color: COLORS.white, fontSize: 20, fontWeight: '700' },
 });

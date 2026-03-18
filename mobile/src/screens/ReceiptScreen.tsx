@@ -3,15 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   SafeAreaView,
-  TextInput,
-  ActivityIndicator,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { NailyCelebrate, NailyThumbsUp } from '../mascot';
 import { sendReceipt } from '../utils/api';
 import { COLORS, CATEGORIES } from '../utils/config';
+import { Button, Badge, NailItTextInput } from '../components';
 import type { RootStackParamList } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Receipt'>;
@@ -52,9 +50,7 @@ export default function ReceiptScreen({ navigation, route }: Props) {
         <Text style={styles.amount}>{amountDisplay}</Text>
         <Text style={styles.cardInfo}>{cardDisplay}</Text>
 
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{categoryLabel}</Text>
-        </View>
+        <Badge variant="category" label={categoryLabel} style={styles.categoryBadge} />
 
         {description ? <Text style={styles.description}>{description}</Text> : null}
 
@@ -66,28 +62,22 @@ export default function ReceiptScreen({ navigation, route }: Props) {
         {receiptState !== 'sent' && (
           <View style={styles.receiptSection}>
             {showPhoneInput && (
-              <TextInput
-                style={styles.phoneInput}
+              <NailItTextInput
                 placeholder="Phone number (e.g., +15551234567)"
-                placeholderTextColor={COLORS.gray}
                 value={phoneInput}
                 onChangeText={setPhoneInput}
                 keyboardType="phone-pad"
+                style={styles.phoneInput}
               />
             )}
-            <TouchableOpacity
-              style={[styles.receiptButton, receiptState === 'sending' && { opacity: 0.7 }]}
+            <Button
+              variant="success"
               onPress={handleSendReceipt}
-              disabled={receiptState === 'sending' || !phoneInput.trim()}
+              disabled={!phoneInput.trim()}
+              loading={receiptState === 'sending'}
             >
-              {receiptState === 'sending' ? (
-                <ActivityIndicator color={COLORS.white} />
-              ) : (
-                <Text style={styles.receiptButtonText}>
-                  {receiptState === 'error' ? 'Retry Send Receipt' : 'Send Receipt'}
-                </Text>
-              )}
-            </TouchableOpacity>
+              {receiptState === 'error' ? 'Retry Send Receipt' : 'Send Receipt'}
+            </Button>
             {receiptState === 'error' && (
               <Text style={styles.errorText}>Failed to send. Try again.</Text>
             )}
@@ -96,18 +86,20 @@ export default function ReceiptScreen({ navigation, route }: Props) {
       </View>
 
       <View style={styles.buttons}>
-        <TouchableOpacity
-          style={styles.doneButton}
+        <Button
+          variant="secondary"
           onPress={() => navigation.popToTop()}
+          style={styles.buttonFlex}
         >
-          <Text style={styles.doneText}>Done</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.newPaymentButton}
+          Done
+        </Button>
+        <Button
+          variant="primary"
           onPress={() => navigation.replace('CollectPayment')}
+          style={styles.buttonFlex}
         >
-          <Text style={styles.newPaymentText}>New Payment</Text>
-        </TouchableOpacity>
+          New Payment
+        </Button>
       </View>
     </SafeAreaView>
   );
@@ -134,13 +126,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   categoryBadge: {
-    backgroundColor: COLORS.navy,
-    borderRadius: 12,
+    marginTop: 12,
     paddingHorizontal: 16,
     paddingVertical: 6,
-    marginTop: 12,
+    borderRadius: 12,
   },
-  categoryText: { color: COLORS.white, fontSize: 14, fontWeight: '600' },
   description: {
     fontSize: 16,
     color: COLORS.darkGray,
@@ -154,22 +144,11 @@ const styles = StyleSheet.create({
   },
   receiptSection: { marginTop: 24, alignItems: 'center', width: '100%' },
   phoneInput: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 16,
-    color: COLORS.navy,
     width: '100%',
     marginBottom: 12,
     textAlign: 'center',
+    padding: 14,
   },
-  receiptButton: {
-    backgroundColor: COLORS.green,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-  },
-  receiptButtonText: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
   errorText: { color: COLORS.red, fontSize: 13, marginTop: 8 },
   buttons: {
     flexDirection: 'row',
@@ -177,20 +156,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 24,
   },
-  doneButton: {
+  buttonFlex: {
     flex: 1,
-    backgroundColor: COLORS.navy,
-    borderRadius: 14,
-    paddingVertical: 18,
-    alignItems: 'center',
   },
-  doneText: { color: COLORS.white, fontSize: 18, fontWeight: '700' },
-  newPaymentButton: {
-    flex: 1,
-    backgroundColor: COLORS.orange,
-    borderRadius: 14,
-    paddingVertical: 18,
-    alignItems: 'center',
-  },
-  newPaymentText: { color: COLORS.white, fontSize: 18, fontWeight: '700' },
 });

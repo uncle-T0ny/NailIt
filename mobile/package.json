@@ -15,6 +15,7 @@
     "@react-navigation/native": "^7.1.33",
     "@react-navigation/native-stack": "^7.14.5",
     "@stripe/stripe-terminal-react-native": "^0.0.1-beta.29",
+    "babel-preset-expo": "~55.0.8",
     "expo": "~55.0.7",
     "expo-dev-client": "~55.0.17",
     "expo-file-system": "~55.0.11",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/react": "~19.2.2",
     "eas-cli": "^18.4.0",
+    "react-native-svg-transformer": "^1.5.3",
     "typescript": "~5.9.2"
   },
   "private": true
