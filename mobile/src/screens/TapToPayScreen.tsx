@@ -78,7 +78,7 @@ function DemoTapToPayScreen({ navigation, route }: Props) {
       <View style={styles.content}>
         {stage === 'connecting' && (
           <>
-            <NailyWorking size={120} />
+            <NailyWorking size={160} />
             <Text style={styles.statusText}>Connecting...</Text>
             <ActivityIndicator color={COLORS.orange} size="large" style={{ marginTop: 16 }} />
           </>
@@ -86,7 +86,7 @@ function DemoTapToPayScreen({ navigation, route }: Props) {
 
         {stage === 'ready' && (
           <>
-            <NailyTap size={120} />
+            <NailyTap size={160} />
             <Text style={styles.statusText}>Ready — Tap or Insert Card</Text>
             <Text style={styles.amountText}>${(amount / 100).toFixed(2)}</Text>
           </>
@@ -94,7 +94,7 @@ function DemoTapToPayScreen({ navigation, route }: Props) {
 
         {stage === 'processing' && (
           <>
-            <NailyWorking size={120} />
+            <NailyWorking size={160} />
             <Text style={styles.statusText}>Processing...</Text>
             <ActivityIndicator color={COLORS.orange} size="large" style={{ marginTop: 16 }} />
           </>
@@ -102,7 +102,7 @@ function DemoTapToPayScreen({ navigation, route }: Props) {
 
         {stage === 'failed' && (
           <>
-            <NailyError size={120} />
+            <NailyError size={160} />
             <Text style={styles.statusText}>Payment Failed</Text>
             <Text style={styles.errorText}>{error}</Text>
             <Button variant="primary" onPress={runDemoPaymentFlow} style={styles.retryButton}>
@@ -238,7 +238,7 @@ function RealTapToPayScreen({ navigation, route }: Props) {
       <View style={styles.content}>
         {stage === 'connecting' && (
           <>
-            <NailyWorking size={120} />
+            <NailyWorking size={160} />
             <Text style={styles.statusText}>Connecting...</Text>
             <ActivityIndicator color={COLORS.orange} size="large" style={{ marginTop: 16 }} />
           </>
@@ -246,7 +246,7 @@ function RealTapToPayScreen({ navigation, route }: Props) {
 
         {stage === 'ready' && (
           <>
-            <NailyTap size={120} />
+            <NailyTap size={160} />
             <Text style={styles.statusText}>Ready — Tap or Insert Card</Text>
             <Text style={styles.amountText}>${(amount / 100).toFixed(2)}</Text>
           </>
@@ -254,7 +254,7 @@ function RealTapToPayScreen({ navigation, route }: Props) {
 
         {stage === 'processing' && (
           <>
-            <NailyWorking size={120} />
+            <NailyWorking size={160} />
             <Text style={styles.statusText}>Processing...</Text>
             <ActivityIndicator color={COLORS.orange} size="large" style={{ marginTop: 16 }} />
           </>
@@ -262,7 +262,7 @@ function RealTapToPayScreen({ navigation, route }: Props) {
 
         {stage === 'failed' && (
           <>
-            <NailyError size={120} />
+            <NailyError size={160} />
             <Text style={styles.statusText}>Payment Failed</Text>
             <Text style={styles.errorText}>{error}</Text>
             <Button variant="primary" onPress={runPaymentFlow} style={styles.retryButton}>

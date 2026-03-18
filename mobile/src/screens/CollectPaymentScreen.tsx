@@ -63,7 +63,7 @@ export default function CollectPaymentScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        <ScreenHeader title="New Payment" mascot={<NailyReady size={60} />} />
+        <ScreenHeader title="New Payment" mascot={<NailyReady size={80} />} />
 
         {/* Job Template Chips */}
         {templates.length > 0 && (
@@ -148,7 +148,7 @@ export default function CollectPaymentScreen({ navigation }: Props) {
         disabled={amountCents <= 0}
         style={styles.chargeButton}
       >
-        Charge {amountDisplay}
+        {`Charge ${amountDisplay}`}
       </Button>
     </SafeAreaView>
   );

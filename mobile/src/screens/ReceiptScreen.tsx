@@ -41,7 +41,7 @@ export default function ReceiptScreen({ navigation, route }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {isSent ? <NailyThumbsUp size={120} /> : <NailyCelebrate size={120} />}
+        {isSent ? <NailyThumbsUp size={160} /> : <NailyCelebrate size={160} />}
 
         <Text style={styles.successText}>
           {isSent ? 'Receipt Sent!' : 'Payment Successful'}

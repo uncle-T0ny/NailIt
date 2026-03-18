@@ -38,11 +38,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderWidth: 1.5,
     borderColor: '#E5E7EB',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   text: {
     fontSize: 14,
     fontWeight: '600',
     color: COLORS.darkGray,
+    textAlign: 'center',
   },
   textActive: {
     color: COLORS.white,

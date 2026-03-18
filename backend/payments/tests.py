@@ -367,8 +367,7 @@ class TransactionListViewTests(APITestCase):
     def test_list_completed_only(self):
         resp = self.client.get('/api/transactions/')
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data['count'], 3)
-        self.assertEqual(len(resp.data['results']), 3)
+        self.assertEqual(len(resp.data), 3)
 
     def test_filter_category(self):
         Transaction.objects.create(
@@ -378,16 +377,15 @@ class TransactionListViewTests(APITestCase):
             category='materials',
         )
         resp = self.client.get('/api/transactions/?category=materials')
-        self.assertEqual(resp.data['count'], 1)
+        self.assertEqual(len(resp.data), 1)
 
     def test_filter_today(self):
         resp = self.client.get('/api/transactions/?today=true')
-        self.assertEqual(resp.data['count'], 3)
+        self.assertEqual(len(resp.data), 3)
 
-    def test_pagination_present(self):
+    def test_returns_flat_array(self):
         resp = self.client.get('/api/transactions/')
-        self.assertIn('count', resp.data)
-        self.assertIn('results', resp.data)
+        self.assertIsInstance(resp.data, list)
 
 
 class TransactionExportViewTests(APITestCase):

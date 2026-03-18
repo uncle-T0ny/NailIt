@@ -107,7 +107,7 @@ function AppNavigator() {
         <Stack.Screen
           name="CollectPayment"
           component={CollectPaymentScreen}
-          options={{ animation: 'slide_from_right' }}
+          options={{ animation: 'slide_from_right', headerShown: true, headerTitle: '', headerBackTitle: 'Home', headerShadowVisible: false, headerStyle: { backgroundColor: COLORS.lightGray }, headerTintColor: COLORS.navy }}
         />
         <Stack.Screen
           name="TapToPay"

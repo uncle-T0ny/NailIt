@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button, Card, Chip, NailItTextInput, Badge, ScreenHeader, NumericKeypad, Banner } from '../components';
+import type { RootStackParamList } from '../types';
 import {
   NailyWave,
   NailyReady,
@@ -24,7 +26,9 @@ function DemoRow({ children }: { children: React.ReactNode }) {
   return <View style={styles.demoRow}>{children}</View>;
 }
 
-export default function UIKitScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, 'UIKit'>;
+
+export default function UIKitScreen({ navigation }: Props) {
   const [activeChipOrange, setActiveChipOrange] = useState('Framing');
   const [activeChipNavy, setActiveChipNavy] = useState('labor');
   const [amountStr, setAmountStr] = useState('0');
@@ -46,7 +50,10 @@ export default function UIKitScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        <ScreenHeader title="UI Kit" mascot={<NailyClipboard size={60} />} />
+        <View style={styles.topBar}>
+          <ScreenHeader title="UI Kit" mascot={<NailyClipboard size={60} />} />
+          <Button variant="small" onPress={() => navigation.goBack()} style={styles.closeBtn}>Close</Button>
+        </View>
 
         {/* ── Buttons ── */}
         <SectionLabel>Buttons</SectionLabel>
@@ -167,10 +174,10 @@ export default function UIKitScreen() {
 
         {/* ── Numeric Keypad ── */}
         <SectionLabel>Numeric Keypad</SectionLabel>
-        <Card style={styles.section}>
+        <View style={[styles.section, styles.keypadSection]}>
           <Text style={styles.amountDisplay}>{amountDisplay}</Text>
           <NumericKeypad onKeyPress={handleKeyPress} />
-        </Card>
+        </View>
 
         {/* ── Banners ── */}
         <SectionLabel>Banners</SectionLabel>
@@ -246,8 +253,22 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginHorizontal: 20,
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: 20,
+  },
+  closeBtn: {
+    marginTop: 8,
+  },
   section: {
     marginHorizontal: 20,
+  },
+  keypadSection: {
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 16,
+    padding: 16,
   },
   label: {
     fontSize: 13,

@@ -116,7 +116,7 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.container}>
       <ScreenHeader
         title="History"
-        mascot={<NailyClipboard size={60} />}
+        mascot={<NailyClipboard size={80} />}
         rightAction={
           <Button variant="small" onPress={handleExport}>CSV</Button>
         }

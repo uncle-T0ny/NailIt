@@ -50,7 +50,7 @@ export default function HomeScreen({ navigation }: Props) {
         onLongPress={() => __DEV__ && navigation.navigate('UIKit' as any)}
         delayLongPress={800}
       >
-        <NailyWave size={56} />
+        <NailyWave size={100} />
         <Text style={styles.logo}>Nail<Text style={styles.logoAccent}>IT</Text></Text>
       </Pressable>
 
@@ -95,48 +95,48 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingTop: 24,
+    paddingBottom: 16,
     paddingHorizontal: 20,
-    gap: 12,
+    gap: 16,
   },
   logo: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: '800',
     color: COLORS.navy,
   },
   logoAccent: {
-    fontSize: 42,
+    fontSize: 38,
     fontWeight: '900',
     color: COLORS.orange,
   },
   cardSpacing: {
-    marginTop: 16,
+    marginTop: 12,
     marginHorizontal: 20,
   },
   cardLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: COLORS.darkGray,
   },
   cardSubtext: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.gray,
     marginTop: 4,
   },
   totalAmount: {
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: '800',
     color: COLORS.navy,
-    marginTop: 8,
+    marginTop: 6,
   },
   txnCount: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.gray,
     marginTop: 4,
   },
   collectButton: {
-    marginTop: 32,
+    marginTop: 24,
     marginHorizontal: 20,
   },
 });

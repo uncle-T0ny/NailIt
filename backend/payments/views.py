@@ -80,6 +80,7 @@ class TransactionCompleteView(APIView):
 class TransactionListView(ListAPIView):
     """List completed transactions with optional filters."""
     serializer_class = TransactionReadSerializer
+    pagination_class = None
 
     def get_queryset(self):
         return services.get_filtered_transactions(
