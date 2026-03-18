@@ -37,6 +37,12 @@
         }
       ],
       "expo-sharing"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d157bd18-b8f7-4861-9683-f25a73d91933"
+      }
+    },
+    "owner": "doit.rant"
   }
 }
