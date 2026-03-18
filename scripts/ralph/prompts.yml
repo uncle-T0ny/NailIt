@@ -1,0 +1,10 @@
+nextEpics:
+  task: |
+    1. Get the next not implemented task from PLAN.md
+    2. Verify the implementation, perform a code review. 
+    3. Implement all the minor and major improvements. 
+    4. Mark task as done 
+    5. Commit the changes
+  exit_condition: |
+    All the tasks in PLAN.md are implemented
+  max_iterations: 40

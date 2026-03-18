@@ -25,7 +25,7 @@ export async function createPaymentIntent(
 ) {
   const res = await request('/api/payment-intents/', {
     method: 'POST',
-    body: JSON.stringify({ amount, currency: 'cad', description, category }),
+    body: JSON.stringify({ amount, currency: 'usd', description, category }),
   });
   return res.json();
 }

@@ -30,7 +30,7 @@ def connection_token(request):
 def create_payment_intent(request):
     """Create a PaymentIntent + pending Transaction."""
     amount = request.data.get('amount')  # in cents
-    currency = request.data.get('currency', 'cad')
+    currency = request.data.get('currency', 'usd')
     description = request.data.get('description', '')
     category = request.data.get('category', 'labor')
 

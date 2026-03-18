@@ -482,93 +482,93 @@ Every checkbox below must be completed before the demo is ready.
 
 ### Backend — Django
 
-- [ ] Django project `nailit_backend` runs with `python manage.py runserver 0.0.0.0:8000`
-- [ ] Transaction model with all fields: amount, description, category, card_last4, card_brand, status, stripe_payment_intent_id, customer_phone, receipt_sent, created_at
-- [ ] JobTemplate model with fields: name, default_category, usage_count, created_at
-- [ ] `seed_templates` management command creates 8 default job templates
-- [ ] `POST /api/connection-token/` — returns Stripe Terminal connection token
-- [ ] `POST /api/payment-intents/` — creates PaymentIntent + pending Transaction, accepts category field
-- [ ] `PATCH /api/transactions/<id>/complete/` — updates status to completed with card details
-- [ ] `GET /api/transactions/` — returns transactions, supports `?today=true` and `?category=` filters
-- [ ] `GET /api/transactions/export/` — returns CSV with QuickBooks-compatible columns, supports same filters
-- [ ] `POST /api/send-receipt/` — sends SMS via Twilio, updates customer_phone + receipt_sent
-- [ ] `GET /api/job-templates/` — returns templates ordered by usage_count desc
-- [ ] `GET /api/transactions/recent-descriptions/` — returns last 5 unique descriptions
-- [ ] `POST /api/offline-sync/` — bulk-creates transactions, idempotent on stripe_payment_intent_id
-- [ ] Transaction + JobTemplate registered in Django admin with list_display
-- [ ] CORS configured for all origins (with production note)
-- [ ] All env vars loaded from `.env` via python-dotenv
+- [x] Django project `nailit_backend` runs with `python manage.py runserver 0.0.0.0:8000`
+- [x] Transaction model with all fields: amount, description, category, card_last4, card_brand, status, stripe_payment_intent_id, customer_phone, receipt_sent, created_at
+- [x] JobTemplate model with fields: name, default_category, usage_count, created_at
+- [x] `seed_templates` management command creates 8 default job templates
+- [x] `POST /api/connection-token/` — returns Stripe Terminal connection token
+- [x] `POST /api/payment-intents/` — creates PaymentIntent + pending Transaction, accepts category field
+- [x] `PATCH /api/transactions/<id>/complete/` — updates status to completed with card details
+- [x] `GET /api/transactions/` — returns transactions, supports `?today=true` and `?category=` filters
+- [x] `GET /api/transactions/export/` — returns CSV with QuickBooks-compatible columns, supports same filters
+- [x] `POST /api/send-receipt/` — sends SMS via Twilio, updates customer_phone + receipt_sent
+- [x] `GET /api/job-templates/` — returns templates ordered by usage_count desc
+- [x] `GET /api/transactions/recent-descriptions/` — returns last 5 unique descriptions
+- [x] `POST /api/offline-sync/` — bulk-creates transactions, idempotent on stripe_payment_intent_id
+- [x] Transaction + JobTemplate registered in Django admin with list_display
+- [x] CORS configured for all origins (with production note)
+- [x] All env vars loaded from `.env` via python-dotenv
 
 ### Mobile — Screens & Navigation
 
-- [ ] React Navigation: bottom tabs (Home, History) + stack (CollectPayment → TapToPay → Receipt)
-- [ ] **HomeScreen**: NailIt header with Naily wave pose (animated), today's total card, "Collect Payment" button
-- [ ] **CollectPaymentScreen**: job template chips (scrollable), recent jobs pills, amount keypad, description input, category picker, phone input, "Charge" button
-- [ ] **TapToPayScreen**: full 5-step Stripe Terminal flow with Naily poses for each state (connecting, ready, processing, failed)
-- [ ] **ReceiptScreen**: Naily celebrate + confetti, amount, card info, category badge, description, timestamp, "Send Receipt" button (Twilio SMS), "Done" and "New Payment" buttons
-- [ ] **HistoryScreen**: Naily clipboard header, category filter bar, transaction list with category pills, status badges, pull-to-refresh, empty state with Naily shrug, Export CSV button, offline queue banner
+- [x] React Navigation: bottom tabs (Home, History) + stack (CollectPayment → TapToPay → Receipt)
+- [x] **HomeScreen**: NailIt header with Naily wave pose (animated), today's total card, "Collect Payment" button
+- [x] **CollectPaymentScreen**: job template chips (scrollable), recent jobs pills, amount keypad, description input, category picker, phone input, "Charge" button
+- [x] **TapToPayScreen**: full 5-step Stripe Terminal flow with Naily poses for each state (connecting, ready, processing, failed)
+- [x] **ReceiptScreen**: Naily celebrate + confetti, amount, card info, category badge, description, timestamp, "Send Receipt" button (Twilio SMS), "Done" and "New Payment" buttons
+- [x] **HistoryScreen**: Naily clipboard header, category filter bar, transaction list with category pills, status badges, pull-to-refresh, empty state with Naily shrug, Export CSV button, offline queue banner
 
 ### Mobile — Stripe Terminal
 
-- [ ] StripeTerminalProvider wraps app in root, tokenProvider calls Django
-- [ ] `discoverReaders` with `localMobile` discovery method
-- [ ] `connectLocalMobileReader` with location ID
-- [ ] `createPaymentIntent` via Django backend (includes category)
-- [ ] `collectPaymentMethod` opens Tap to Pay UI
-- [ ] `confirmPaymentIntent` finalizes transaction
-- [ ] `simulated: true` for demo mode
+- [x] StripeTerminalProvider wraps app in root, tokenProvider calls Django
+- [x] `discoverReaders` with `localMobile` discovery method
+- [x] `connectLocalMobileReader` with location ID
+- [x] `createPaymentIntent` via Django backend (includes category)
+- [x] `collectPaymentMethod` opens Tap to Pay UI
+- [x] `confirmPaymentIntent` finalizes transaction
+- [x] `simulated: true` for demo mode
 
 ### Mobile — Twilio SMS Receipts
 
-- [ ] "Send Receipt" button on ReceiptScreen
-- [ ] If phone provided in CollectPayment, auto-shows send button
-- [ ] If no phone, inline prompt for phone number
-- [ ] Calls `POST /api/send-receipt/` with transaction ID + phone
-- [ ] Shows "Sending..." → "Receipt Sent!" with Naily thumbs-up transition
-- [ ] Graceful error handling if SMS fails
+- [x] "Send Receipt" button on ReceiptScreen
+- [x] If phone provided in CollectPayment, auto-shows send button
+- [x] If no phone, inline prompt for phone number
+- [x] Calls `POST /api/send-receipt/` with transaction ID + phone
+- [x] Shows "Sending..." → "Receipt Sent!" with Naily thumbs-up transition
+- [x] Graceful error handling if SMS fails
 
 ### Mobile — QuickBooks Categories & CSV Export
 
-- [ ] Category picker (segmented control) on CollectPaymentScreen: Labor, Materials, Subcontractor, Equipment, Other
-- [ ] Category auto-fills when job template chip is tapped
-- [ ] Category pill displayed on each transaction in HistoryScreen
-- [ ] Filter bar on HistoryScreen filters by category
-- [ ] Export CSV button triggers `GET /api/transactions/export/` → iOS share sheet
-- [ ] CSV export respects current category filter
+- [x] Category picker (segmented control) on CollectPaymentScreen: Labor, Materials, Subcontractor, Equipment, Other
+- [x] Category auto-fills when job template chip is tapped
+- [x] Category pill displayed on each transaction in HistoryScreen
+- [x] Filter bar on HistoryScreen filters by category
+- [x] Export CSV button triggers `GET /api/transactions/export/` → iOS share sheet
+- [x] CSV export respects current category filter
 
 ### Mobile — Offline Payment Queue
 
-- [ ] AsyncStorage queue persists transactions when backend is unreachable
-- [ ] NetInfo listener in App.tsx watches connectivity
-- [ ] On offline: transaction saved to queue after successful Stripe confirm
-- [ ] Receipt shows "Offline — will sync" note with Naily offline pose
-- [ ] On connectivity restored: auto-flushes queue via `POST /api/offline-sync/`
-- [ ] HistoryScreen shows "X payments pending sync" banner with Naily offline pose
-- [ ] "Sync Now" manual button in banner
-- [ ] Syncing state shows Naily syncing pose with slide animation
-- [ ] Partial failures kept in queue for retry
+- [x] AsyncStorage queue persists transactions when backend is unreachable
+- [x] NetInfo listener in App.tsx watches connectivity
+- [x] On offline: transaction saved to queue after successful Stripe confirm
+- [x] Receipt shows "Offline — will sync" note with Naily offline pose
+- [x] On connectivity restored: auto-flushes queue via `POST /api/offline-sync/`
+- [x] HistoryScreen shows "X payments pending sync" banner with Naily offline pose
+- [x] "Sync Now" manual button in banner
+- [x] Syncing state shows Naily syncing pose with slide animation
+- [x] Partial failures kept in queue for retry
 
 ### Mascot — Naily
 
-- [ ] 11 SVG poses generated: wave, ready, tap, working, celebrate, thumbs-up, clipboard, shrug, offline, syncing, error
-- [ ] App icon: Naily face close-up on dark navy background (1024x1024 source)
-- [ ] `naily-celebrate.svg` — scale bounce animation (1.0 → 1.2 → 1.0) + confetti on mount
-- [ ] `naily-working.svg` — continuous wobble/rotation animation (looping)
-- [ ] `naily-wave.svg` — arm wave on HomeScreen mount (one-shot, ~1s)
-- [ ] `naily-syncing.svg` — continuous left-right slide while syncing
-- [ ] Naily appears on every screen in appropriate pose
-- [ ] Mascot sizes: ~80px headers, ~120px feature states, ~160px empty states
-- [ ] Mascot never overlaps interactive elements
+- [x] 11 SVG poses generated: wave, ready, tap, working, celebrate, thumbs-up, clipboard, shrug, offline, syncing, error
+- [x] App icon: Naily face close-up on dark navy background (1024x1024 source)
+- [x] `naily-celebrate.svg` — scale bounce animation (1.0 → 1.2 → 1.0) + confetti on mount
+- [x] `naily-working.svg` — continuous wobble/rotation animation (looping)
+- [x] `naily-wave.svg` — arm wave on HomeScreen mount (one-shot, ~1s)
+- [x] `naily-syncing.svg` — continuous left-right slide while syncing
+- [x] Naily appears on every screen in appropriate pose
+- [x] Mascot sizes: ~80px headers, ~120px feature states, ~160px empty states
+- [x] Mascot never overlaps interactive elements
 
 ### UI/UX & Polish
 
-- [ ] Color palette: navy #1B2A4A, orange #FF6B35, white, gray #F5F5F5, green #22C55E
-- [ ] Large tap targets: minimum 48px (glove-friendly)
-- [ ] Amount display: 48px+ font
-- [ ] Custom numeric keypad (no system keyboard for amount)
-- [ ] Loading states use Naily poses instead of generic spinners
-- [ ] Card-based layout for dashboard items
-- [ ] Clean fintech aesthetic — no clutter
+- [x] Color palette: navy #1B2A4A, orange #FF6B35, white, gray #F5F5F5, green #22C55E
+- [x] Large tap targets: minimum 48px (glove-friendly)
+- [x] Amount display: 48px+ font
+- [x] Custom numeric keypad (no system keyboard for amount)
+- [x] Loading states use Naily poses instead of generic spinners
+- [x] Card-based layout for dashboard items
+- [x] Clean fintech aesthetic — no clutter
 
 ### Build & Deliverable
 
