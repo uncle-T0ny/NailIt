@@ -41,3 +41,4 @@ eas build --profile development --platform ios
 ## Credits
 
 Logo generated using [Quiver](https://app.quiver.ai/)
+Mascot character generated and vectorized using [Recraft](https://www.recraft.ai/)

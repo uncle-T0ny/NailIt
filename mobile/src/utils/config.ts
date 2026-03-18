@@ -1,6 +1,6 @@
 // Backend API URL — use ngrok or local IP so physical iPhone can reach it
 // e.g., http://192.168.x.x:8000 or https://abc123.ngrok.io
-export const API_URL = 'http://192.168.1.100:8000';
+export const API_URL = 'http://192.168.1.148:8000';
 
 // Stripe Terminal location ID
 export const STRIPE_LOCATION_ID = 'tml_GbemGgskI4LbKf';
